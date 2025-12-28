@@ -1,0 +1,552 @@
+:root {
+    --mtg-black: #151515;
+    --mtg-dark-grey: #2b2b2b;
+    --mtg-light-grey: #a0a0a0;
+    --mtg-gold: #c6a668;
+    --mtg-red: #d3202a;
+    --mtg-green: #00733e;
+    --mtg-blue: #0e68ab;
+    --mtg-white: #f9faf4;
+    --bg-texture: #1c1c1c;
+}
+
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body { 
+    display: flex; flex-direction: column; height: 100vh; 
+    background-color: var(--bg-texture); color: var(--mtg-white);
+    font-family: 'Lato', sans-serif;
+}
+
+.top-nav {
+    background: linear-gradient(180deg, #2a2a2a 0%, #1a1a1a 100%);
+    border-bottom: 2px solid var(--mtg-gold);
+    padding: 0 10px; display: flex; height: 60px; align-items: center;
+    box-shadow: 0 4px 10px rgba(0,0,0,0.5);
+}
+.nav-logo {
+    font-family: 'Cinzel', serif; font-size: 20px; color: var(--mtg-gold);
+    margin-right: 30px; padding-left: 10px; text-shadow: 0 0 5px rgba(198, 166, 104, 0.5);
+}
+.nav-btn {
+    background: none; border: none; padding: 0 20px; height: 100%;
+    cursor: pointer; font-family: 'Cinzel', serif; font-weight: 700; font-size: 14px;
+    color: var(--mtg-light-grey); border-bottom: 3px solid transparent; transition: all 0.3s;
+}
+.nav-btn:hover { color: var(--mtg-white); background-color: rgba(255,255,255,0.05); }
+.nav-btn.active { 
+    border-bottom: 3px solid var(--mtg-gold); color: var(--mtg-gold); 
+    background: linear-gradient(0deg, rgba(198, 166, 104, 0.1) 0%, transparent 100%);
+}
+
+/* --- LAYOUT --- */
+.main-container { display: flex; flex: 1; overflow: hidden; }
+.sidebar {
+    width: 220px; background-color: #222; border-right: 1px solid #333;
+    display: flex; flex-direction: column; padding: 20px; justify-content: space-between;
+}
+.action-group { display: flex; flex-direction: column; gap: 15px; }
+.action-group h3 { 
+    font-family: 'Cinzel', serif; font-size: 14px; color: var(--mtg-light-grey); 
+    border-bottom: 1px solid #444; padding-bottom: 5px; margin-bottom: 10px;
+}
+.action-btn {
+    padding: 12px 15px; border: 1px solid rgba(255,255,255,0.1);
+    border-radius: 4px; cursor: pointer; font-weight: bold; text-align: left; color: white;
+    transition: 0.2s; text-transform: uppercase; font-size: 12px; letter-spacing: 1px;
+}
+.btn-add { background: linear-gradient(45deg, #005c32, #00733e); border-left: 4px solid #2ecc71; } 
+.btn-view { background: linear-gradient(45deg, #b18e1a, #c59e1e); border-left: 4px solid #e9c10e; } 
+.btn-edit { background: linear-gradient(45deg, #0a4d80, #0e68ab); border-left: 4px solid #3498db; } 
+.btn-delete { background: linear-gradient(45deg, #8a151b, #d3202a); border-left: 4px solid #e74c3c; } 
+.action-btn:disabled { 
+    background: #333; color: #555; border: 1px solid #333; cursor: not-allowed; border-left: 4px solid #555; 
+}
+.action-btn:not(:disabled):hover { filter: brightness(1.2); transform: translateX(2px); }
+
+/* Stil pentru butonul de vizualizare activ */
+.action-btn.view-active {
+    background: var(--mtg-gold);
+    color: #111;
+    border: 1px solid var(--mtg-gold);
+    font-weight: bold;
+    box-shadow: 0 0 10px rgba(198, 166, 104, 0.4);
+}
+
+.user-info { 
+    font-size: 12px; color: #777; border-top: 1px solid #444; padding-top: 15px; 
+}
+.user-info strong { color: var(--mtg-gold); font-family: 'Cinzel', serif; }
+
+.content { flex: 1; padding: 25px; overflow-y: auto; position: relative; }
+#tableTitle {
+    font-family: 'Cinzel', serif; font-size: 24px; color: var(--mtg-gold);
+    margin-bottom: 20px; border-left: 4px solid var(--mtg-gold); padding-left: 15px;
+}
+#tableWrapper { 
+    background: #252525; border: 1px solid #444; border-radius: 4px; 
+    box-shadow: 0 10px 30px rgba(0,0,0,0.5); overflow: auto; z-index: 1; position: relative;
+}
+
+/* --- STILURI TABEL --- */
+table { width: 100%; border-collapse: collapse; font-size: 14px; min-width: 600px; }
+th { 
+    background-color: #1a1a1a; color: var(--mtg-light-grey); padding: 15px; 
+    text-align: left; cursor: pointer; border-bottom: 2px solid #444; 
+    position: sticky; top: 0; font-family: 'Cinzel', serif; letter-spacing: 1px; z-index: 10;
+}
+th:hover { color: var(--mtg-white); background-color: #111; }
+td { padding: 10px 15px; border-bottom: 1px solid #333; color: #ddd; vertical-align: middle; }
+tr:nth-child(even) { background-color: #2a2a2a; }
+tr:hover { background-color: #383838; cursor: pointer; }
+tr.selected { 
+    background: linear-gradient(90deg, rgba(198, 166, 104, 0.2) 0%, rgba(0,0,0,0) 100%) !important;
+    border-left: 4px solid var(--mtg-gold); 
+}
+tr.selected td { color: var(--mtg-gold); font-weight: bold; }
+
+.card-thumb {
+    height: 50px;
+    border-radius: 4px;
+    border: 1px solid #555;
+    transition: transform 0.2s;
+}
+.card-thumb:hover { transform: scale(2.5); z-index: 100; position: relative; border-color: var(--mtg-gold); }
+
+.truncate {
+    max-width: 250px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; display: block;
+}
+
+/* --- STILURI GALERIE (CARD GRID) --- */
+
+@font-face {
+    font-family: 'MTG_FONT'; 
+    src: url('Beleren2016-Bold.ttf');  
+    font-weight: normal;
+    font-style: normal;
+}
+
+.card-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+    gap: 20px;
+    padding: 20px;
+}
+.locatii-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(400px, 1fr));
+    gap: 20px;
+    padding: 20px;
+}
+.meciuri-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
+    gap: 20px;
+    padding: 20px;
+}
+.mtg-card {
+    border-radius: 2.5mm;
+    overflow: hidden;
+    background-color: #120c0c; 
+    text-align: center;
+    cursor: pointer;
+    transition: transform 0.2s;
+    display: flex; flex-direction: column; justify-content: space-between;
+}
+.mtg-card:hover { transform: translateY(-10px); border-color: var(--mtg-light-grey); }
+.mtg-card.selected {
+    border: 2px solid var(--mtg-gold);
+    box-shadow: 0 0 15px rgba(198, 166, 104, 0.4);
+    transform: scale(1.02);
+}
+.mtg-card img {
+    width: 100%; height: auto; border-radius: 6px;/* margin-bottom: 8px;*/
+    min-height: 250px; background: #000; object-fit: cover;
+}
+.card-name {
+    size:10px;
+    font-family: 'MTG_FONT'; 
+    
+    background-color: #120c0c; 
+    color: #b9b9b9; 
+}
+.card-sub { color: #888; font-size: 11px; }
+
+/* --- MODAL --- */
+.modal { display: none; position: fixed; z-index: 1000; left: 0; top: 0; width: 100%; height: 100%; background-color: rgba(0,0,0,0.8); align-items: center; justify-content: center; backdrop-filter: blur(5px); }
+.modal-content { 
+    background-color: #1e1e1e; padding: 0; border: 2px solid var(--mtg-gold); 
+    border-radius: 8px; width: 50%; max-width: 500px; 
+    box-shadow: 0 0 20px rgba(198, 166, 104, 0.3); animation: fadeIn 0.3s;
+}
+@keyframes fadeIn { from {opacity: 0; transform: translateY(-20px);} to {opacity: 1; transform: translateY(0);} }
+.modal-header { 
+    background-color: #111; padding: 15px 25px; display: flex; 
+    justify-content: space-between; align-items: center; border-bottom: 1px solid #333;
+}
+.modal-header h3 { color: var(--mtg-gold); font-family: 'Cinzel', serif; margin: 0; }
+.close-btn { font-size: 24px; cursor: pointer; color: #777; } .close-btn:hover { color: #fff; }
+#modalFormBody { padding: 25px; max-height: 60vh; overflow-y: auto; }
+.form-group { margin-bottom: 20px; }
+.form-group label { display: block; margin-bottom: 8px; color: var(--mtg-light-grey); font-size: 13px; text-transform: uppercase; }
+.form-group input { 
+    width: 100%; padding: 10px; background-color: #2b2b2b; border: 1px solid #444; 
+    border-radius: 4px; color: white; font-family: 'Lato', sans-serif;
+}
+.form-group input:read-only { background-color: #151515; color: #555; border-style: dashed; }
+.modal-footer { padding: 15px 25px; background-color: #111; text-align: right; border-top: 1px solid #333; }
+.save-btn { 
+    padding: 10px 25px; background: var(--mtg-gold); color: #111; border: none; 
+    border-radius: 4px; cursor: pointer; font-weight: bold; font-family: 'Cinzel', serif; text-transform: uppercase;
+}
+.save-btn:hover { background-color: #e5c37d; box-shadow: 0 0 10px var(--mtg-gold); }
+
+/* --- STILURI STRICT PENTRU SETURI --- */
+.set-card {
+    background: linear-gradient(145deg, #232526, #414345);
+    border-left: 5px solid #d3202a;
+    border-radius: 6px;
+    padding: 15px;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    min-height: 160px;
+    box-shadow: 0 4px 6px rgba(0,0,0,0.4);
+    transition: transform 0.2s, box-shadow 0.2s;
+}
+
+.set-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 10px 20px rgba(0,0,0,0.6);
+}
+
+
+.set-title {
+    font-size: 1.3rem;
+    font-weight: 700;
+    color: #fff;
+    margin-bottom: 15px;
+    border-bottom: 1px solid rgba(255,255,255,0.1);
+    padding-bottom: 10px;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+}
+
+.set-detail {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 6px;
+    font-size: 0.9rem;
+    background-color: rgba(0,0,0,0.2);
+    padding: 5px 8px;
+    border-radius: 4px;
+}
+
+.set-label {
+    color: #888;
+    font-size: 0.75rem;
+    font-weight: bold;
+}
+
+.set-value {
+    color: #eee;
+    font-family: monospace;
+    font-size: 1rem;
+}
+/* --- STILURI STRICT PENTRU JUCĂTORI (USERS) --- */
+
+.player-card {
+    /* Gradient de la negru-maroniu la un bronz închis */
+    background: linear-gradient(145deg, #1f1c18, #3e3526); 
+    border: 1px solid #7d6608; /* Bordură bronz/auriu închis */
+    border-radius: 10px;
+    padding: 20px;
+    display: flex;
+    flex-direction: column;
+    align-items: center; 
+    text-align: center;
+    transition: all 0.2s ease;
+    box-shadow: 0 4px 6px rgba(0,0,0,0.3);
+}
+
+.player-card:hover {
+    transform: translateY(-5px);
+    border-color: #d4af37; /* Auriu metalic la hover */
+    box-shadow: 0 10px 20px rgba(212, 175, 55, 0.2); /* Umbră aurie */
+}
+
+.player-avatar-container {
+    width: 80px;
+    height: 80px;
+    margin-bottom: 15px;
+    
+    border-radius: 50%;
+    border: 3px solid #d4af37; 
+    
+    overflow: hidden; 
+
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    background-color: #9e9e9e; 
+}
+
+.player-avatar {
+    width: 85%; 
+    height: 85%;
+    object-fit: contain; 
+}
+.player-name {
+    font-size: 1.2rem;
+    color: #fcf3cf; /* Un alb-crem, nu alb pur, pentru a se potrivi cu auriul */
+    margin-bottom: 15px;
+    border-bottom: none;
+    font-weight: 600;
+}
+
+.player-detail {
+    width: 100%;
+    font-size: 0.85rem;
+    color: #dcdcdc;
+    margin-bottom: 5px;
+    background-color: rgba(0,0,0,0.3); /* Fundal un pic mai închis */
+    padding: 6px;
+    border-radius: 20px; 
+}
+
+.player-label {
+    font-weight: bold;
+    color: #f1c40f; /* Auriu aprins pentru textul etichetei */
+    margin-right: 5px;
+    font-size: 0.75rem;
+}
+
+.player-value {
+    color: #fff;
+}
+
+/* --- STILURI SPECIFICE PENTRU SETURI (Revised: Dark Iron & Ember Theme) --- */
+
+.set-card {
+    /* 1. FUNDAL NOU: Un gradient mult mai închis, de la cărbune la negru, 
+       cu o tentă foarte subtilă de roșu închis pentru coeziune. */
+    background: linear-gradient(145deg, #1c1a1a, #2d2a24);
+    
+    /* Bordură subtilă întunecată */
+    border: 1px solid #333;
+    
+    /* 2. ACCENT NOU: Un roșu 'crimson' mai adânc, mai bogat, nu atât de strident */
+    border-left: 5px solid #75592f; 
+    
+    border-radius: 4px;
+    padding: 15px;
+    display: flex;
+    flex-direction: column;
+    text-align: left; 
+    
+    /* Umbră mai discretă inițial */
+    box-shadow: 0 4px 6px rgba(0,0,0,0.4);
+    transition: all 0.3s ease; /* Tranziție puțin mai lentă, mai elegantă */
+}
+
+/* Efect de Hover - Incandescență */
+.set-card:hover {
+    transform: translateX(5px);
+    
+    /* Bara devine un roșu-portocaliu strălucitor, ca jăraticul */
+    border-left-color: #a18549; 
+    
+    /* Adăugăm o strălucire roșiatică subtilă în jurul cardului */
+    box-shadow: 0 5px 15px rgba(110, 92, 31, 0.2);
+    
+    /* Luminăm ușor fundalul la hover */
+    background: linear-gradient(145deg, #252422, #38342e);
+}
+
+/* Titlul Setului */
+.set-title {
+    /* Folosim fontul custom dacă există, fallback la sans-serif */
+    font-family: 'MTG_FONT';
+    color: #ecf0f1; /* Alb murdar */
+    font-size: 1.35rem;
+    font-weight: 600;
+    border-bottom: 1px solid #444; /* Linie separator mai subtilă */
+    padding-bottom: 10px;
+    margin-bottom: 15px;
+    background-color: transparent; 
+    text-align: left;
+    letter-spacing: 0.5px;
+}
+
+/* Rândurile de detalii */
+.set-detail {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    
+    /* 3. FUNDAL DETALII: Mai închis, pentru contrast mai bun */
+    background-color: rgba(0, 0, 0, 0.3);
+    border: 1px solid rgba(255,255,255,0.03); /* Bordură aproape invizibilă pentru definiție */
+    
+    margin-bottom: 8px;
+    padding: 8px 12px;
+    border-radius: 3px;
+    
+    /* Font tehnic */
+    font-family: 'Courier New', Courier, monospace; /* Sau un font tehnic preferat */
+    font-size: 0.9rem;
+}
+
+.set-label {
+    color: #808b96; /* Un gri mai neutru și mai închis pentru etichete */
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    font-size: 0.75rem;
+}
+
+.set-value {
+    color: #fdfefe; /* Alb aproape pur pentru valori, pentru citire ușoară */
+    font-weight: 500;
+    font-size: 1rem;
+}
+
+
+/* --- STILURI PACHETE - MTG ARENA FIXED 3D --- */
+
+/* 1. Scena (Containerul) */
+.deck-scene {
+    width: 220px;
+    height: 310px;
+    perspective: 1200px; /* Perspectivă mai adâncă */
+    margin: 30px auto; /* Spațiu mai mare să nu se taie la hover */
+    cursor: pointer;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+/* 2. Obiectul 3D (Cutia) */
+.deck-box {
+    width: 100%;
+    height: 100%;
+    position: relative;
+    transform-style: preserve-3d;
+    
+    /* Rotația standard - vedem fața, latura dreaptă și capacul de sus */
+    transform: rotateY(-25deg) rotateX(15deg);
+    transition: transform 0.3s ease-out;
+}
+
+/* 3. Fața Frontală (Imaginea) - ANCORA PRINCIPALĂ */
+.deck-face-front {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    
+    background-size: cover;
+    background-position: center;
+    border-radius: 6px; /* Rotunjire ușoară */
+    
+    /* Important: Nu o mai împingem în față cu translateZ. 
+       Ea stă la 0, iar restul se construiesc în spate. */
+    transform: translateZ(0); 
+    
+    /* Umbră fină pentru realism */
+    box-shadow: inset 0 0 20px rgba(0,0,0,0.5); 
+    z-index: 2; /* Asigură că e deasupra laturilor la îmbinări */
+}
+
+/* 4. LATURA DREAPTĂ (Grosimea) */
+.deck-box::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    right: 0; 
+    
+    /* Grosimea pachetului */
+    width: 40px; 
+    height: 99%;
+    
+    background: linear-gradient(to left, #111, #2c2c2c);
+    border: 1px solid #000;
+    
+    /* O "lipim" de marginea dreaptă și o rotim în SPATE (-90deg) */
+    transform-origin: right;
+    transform: rotateY(-90deg);
+}
+
+/* 5. LATURA DE SUS (Capacul) */
+.deck-box::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    
+    width: 100%;
+    /* Aceeași grosime ca latura dreaptă pentru a se îmbina colțul */
+    height: 40px; 
+    
+    background: linear-gradient(to top, #2c2c2c, #111);
+    border: 1px solid #000;
+    
+    /* O "lipim" de marginea de sus și o rotim în SPATE (-90deg) */
+    transform-origin: top;
+    transform: rotateX(-90deg);
+}
+
+/* 6. Bannerul (Eticheta) */
+.deck-banner {
+    position: absolute;
+    bottom: 25px;
+    left: 0;
+    
+    /* FIX: Lățimea este 100% din cutie, nu 110%. 
+       Astfel nu mai iese în afara cutiei (problema cercului roșu de jos). */
+    width: 100%; 
+    box-sizing: border-box; /* Include padding-ul în lățime */
+
+    /* Îl scoatem puțin în relief (Z) ca să pară aplicat pe cutie */
+    transform: translateZ(1px); 
+    transform-style: preserve-3d;
+
+    background: rgba(15, 15, 15, 0.95);
+    border-top: 2px solid #d4af37;
+    border-bottom: 2px solid #d4af37;
+    color: #fff;
+    
+    text-align: center;
+    padding: 10px 5px;
+    
+    box-shadow: 0 4px 10px rgba(0,0,0,0.5);
+}
+
+.deck-name {
+    font-family: 'MyCustomFont', serif; /* Fontul tău */
+    font-size: 1.1rem;
+    color: #fceeb5;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    text-shadow: 0 2px 4px rgba(0,0,0,0.8);
+}
+
+.deck-format {
+    font-size: 0.75rem;
+    color: #aaa;
+    margin-top: 3px;
+    text-transform: uppercase;
+}
+
+/* --- ANIMATIE HOVER --- */
+.deck-scene:hover .deck-box {
+    /* La hover, ridicăm cutia și o îndreptăm spre utilizator */
+    transform: rotateY(0deg) rotateX(0deg) scale(1.05) translateY(-10px);
+    z-index: 10;
+}
+
+.deck-scene:hover .deck-banner {
+    border-color: #ffeaa7; /* Auriu aprins */
+    background: rgba(0, 0, 0, 1);
+}

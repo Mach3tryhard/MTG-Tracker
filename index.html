@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html lang="ro">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MTG TRACKER</title>
+    <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@700&family=Lato:wght@400;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="/style.css">
+</head>
+<body>
+
+    <nav class="top-nav">
+        <div class="nav-logo">JURNAL MTG</div>
+        <button class="nav-btn" onclick="loadTable('SETURI', this)">SETURI</button>
+        <button class="nav-btn" onclick="loadTable('CARTI', this)">CĂRȚI</button>
+        <button class="nav-btn" onclick="loadTable('JUCATORI', this)">JUCĂTORI</button>
+        <button class="nav-btn" onclick="loadTable('PACHETE', this)">PACHETE</button>
+        <button class="nav-btn" onclick="loadTable('LOCATII', this)">LOCAȚII</button>
+        <button class="nav-btn" onclick="loadTable('EVENIMENTE', this)">EVENIMENTE</button>
+        <button class="nav-btn" onclick="loadTable('MECIURI', this)">MECIURI</button>
+        <button class="nav-btn" style="color: #9b59b6; border-color: #9b59b6;" onclick="loadWinrateReport(this)">CASTIGURI</button>
+    </nav>
+
+    <div class="main-container">
+        <aside class="sidebar">
+            <div class="action-group">
+                <h3>Acțiuni</h3>
+                <button class="action-btn btn-add" onclick="openModal('add')">Adaugă</button>
+                <button class="action-btn btn-edit" id="btnEdit" disabled onclick="openModal('edit')">Editează</button>
+                <button class="action-btn btn-delete" id="btnDelete" disabled onclick="deleteItem()">Șterge</button>
+            </div>
+
+            <div id="viewModeActions" class="action-group">
+                <h3>Mod Vizualizare</h3>
+                <button class="action-btn btn-view" id="btnViewTable" onclick="switchView('table')">Mod tabel</button>
+                <button class="action-btn btn-view" id="btnViewGallery" onclick="switchView('gallery')">Mod vizual</button>
+            </div>
+            
+            <div class="user-info">
+                User: <strong>tris</strong><br>
+                Serviciu: <strong>XEPDB1</strong>
+            </div>
+        </aside>
+
+        <main class="content">
+            <h2 id="tableTitle">Selectează un tabel...</h2>
+            <div id="tableWrapper"></div>
+        </main>
+    </div>
+
+    <div id="unifiedModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 id="modalTitle">Titlu</h3>
+                <span class="close-btn" onclick="closeModal()">&times;</span>
+            </div>
+            <div id="modalFormBody"></div>
+            <div class="modal-footer">
+                <button class="save-btn" onclick="saveData()">Salvează</button>
+            </div>
+        </div>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>
