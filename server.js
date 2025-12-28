@@ -115,8 +115,19 @@ app.post('/api/insert/generic', async (req, res) => {
         Object.keys(data).forEach(key => {
             if (data[key] !== "" && data[key] !== null) {
                 cols.push(key);
-                vals.push(`:${key}`);
-                bindParams[key] = data[key];
+                
+                let isDateColumn = (key.toUpperCase().includes('DATA') || key.toUpperCase().includes('LANSARE'));
+                let isDateString = (typeof data[key] === 'string' && /^\d{4}-\d{2}-\d{2}/.test(data[key]));
+
+                if (isDateColumn && isDateString) {
+                    vals.push(`TO_DATE(:${key}, 'YYYY-MM-DD')`);
+                    
+                    bindParams[key] = data[key].substring(0, 10);
+                } 
+                else {
+                    vals.push(`:${key}`);
+                    bindParams[key] = data[key];
+                }
             }
         });
 

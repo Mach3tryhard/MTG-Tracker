@@ -1,0 +1,68 @@
+.player-card {
+    border: 1px solid #333;
+    border-radius: 8px;
+    padding: 20px;
+    display: flex;
+    cursor: pointer;
+    flex-direction: column;
+    align-items: center; 
+    text-align: center;
+    transition: all 0.2s ease;
+    background-color: #1a1a1a;
+    box-shadow: 0 4px 6px rgba(0,0,0,0.3);
+}
+
+.player-card:hover {
+    transform: translateY(-0px);
+    border-color: #d4af37;
+    box-shadow: 0 10px 20px rgba(212, 175, 55, 0.2);
+}
+
+.player-avatar-container {
+    width: 80px;
+    height: 80px;
+    margin-bottom: 15px;
+    
+    border-radius: 50%;
+    
+    overflow: hidden; 
+
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    background-color: #9e9e9e; 
+}
+
+.player-avatar {
+    width: 85%; 
+    height: 85%;
+    object-fit: contain; 
+}
+.player-name {
+    font-size: 1.2rem;
+    color: #fcf3cf;
+    margin-bottom: 15px;
+    border-bottom: none;
+    font-weight: 600;
+}
+
+.player-detail {
+    width: 100%;
+    font-size: 0.85rem;
+    color: #dcdcdc;
+    margin-bottom: 5px;
+    background-color: rgba(0,0,0,0.3);
+    padding: 6px;
+    border-radius: 20px; 
+}
+
+.player-label {
+    font-weight: bold;
+    color: #f1c40f;
+    margin-right: 5px;
+    font-size: 0.75rem;
+}
+
+.player-value {
+    color: #fff;
+}

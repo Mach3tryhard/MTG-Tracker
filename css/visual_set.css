@@ -1,0 +1,56 @@
+.gallery-item-set {
+    padding: 20px;
+    background-color: #111;
+    text-align: center;
+    border: 1px solid #333;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: all 0.2s ease-in-out;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    min-height: 150px;
+    box-shadow: 0 4px 6px rgba(0,0,0,0.3);
+}
+
+.gallery-item-set:hover {
+    background-color: #1a1a1a;
+    border-color: #555;
+}
+
+.gallery-item-set.selected {
+    border: 1px solid var(--mtg-gold);
+    background: linear-gradient(145deg, #1a1a1a, #252422);
+    box-shadow: 0 0 15px rgba(198, 166, 104, 0.4);
+}
+
+.gallery-set-icon {
+    width: 50px;
+    height: 50px;
+    margin-bottom: 15px;
+    filter: invert(1);
+    transition: transform 0.2s;
+}
+
+.gallery-set-title {
+    color: var(--mtg-gold);
+    font-size: 1.1em;
+    font-weight: bold;
+    font-family: 'Cinzel', serif;
+    margin-bottom: 8px;
+    display: block;
+}
+
+.gallery-set-meta {
+    color: #888;
+    font-size: 12px;
+    border-top: 1px solid #333;
+    padding-top: 8px;
+    width: 100%;
+}
+
+.gallery-set-val {
+    color: #ccc;
+    font-weight: bold;
+}

@@ -14,8 +14,24 @@ async function loadTable(tableName, btnElement) {
     if(btnAdd) btnAdd.disabled = false;
 
     currentTable = tableName;
+
+    // LOGICA BUTOANE IMPORT
+    const btnScryfallCard = document.getElementById('btnScryfall');
+    const btnScryfallSet = document.getElementById('btnScryfallSet');
+
+    if(btnScryfallCard) btnScryfallCard.style.display = 'none';
+    if(btnScryfallSet) btnScryfallSet.style.display = 'none';
+
+    if (tableName === 'CARTI') {
+        if(btnScryfallCard) btnScryfallCard.style.display = 'inline-block';
+    } 
+    else if (tableName === 'SETURI') {
+        if(btnScryfallSet) btnScryfallSet.style.display = 'inline-block';
+    }
+
     selectedRow = null;
     updateButtons();
+    
 
     if (btnElement) {
         document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
@@ -40,7 +56,7 @@ async function loadTable(tableName, btnElement) {
         renderCurrentView(); 
         
     } catch (e) {
-        document.getElementById('tableWrapper').innerHTML = `<div class="error-msg"><strong>Fizzle Error:</strong> ${e.message}</div>`;
+        document.getElementById('tableWrapper').innerHTML = `<div class="error-msg"><strong>EROARE:</strong> ${e.message}</div>`;
     }
 }
 
@@ -74,7 +90,6 @@ function renderCurrentView() {
     }
 }
 
-// --- RENDERIZARE TABEL STANDARD ---
 function renderTable(data) {
     if (!data || data.length === 0) {
         document.getElementById('tableWrapper').innerHTML = '<div style="padding:20px; color:#aaa;">Nu există date.</div>';
@@ -93,7 +108,7 @@ function renderTable(data) {
             if (typeof val === 'string' && val.includes('T') && /^\d{4}-\d{2}-\d{2}T/.test(val)) {
                 val = val.split('T')[0];
             }
-            else if (c === 'URL_IMAGINE' && val.startsWith('http')) {
+            else if ((c === 'URL_IMAGINE' || c=== 'URL_IMAGINE_SET') && val.startsWith('http')) {
                 val = `<img src="${val}" class="card-thumb" alt="Card Art">`;
             } 
             else if (c === 'DESCRIERE' || val.length > 50) {
@@ -108,7 +123,6 @@ function renderTable(data) {
     document.getElementById('tableWrapper').innerHTML = html;
 }
 
-// --- RENDERIZARE GALERIE (NOU) ---
 function renderCardGallery(data) {
     if(currentTable=='CARTI'){
         if (!data || data.length === 0) {
@@ -139,28 +153,20 @@ function renderCardGallery(data) {
         }
         let html = '<div class="card-grid">';
         data.forEach((row, index) => {
-            let displayTitle = row.NUME_SET;
 
             html += `
-            <div class="mtg-card set-card" onclick="selectCardGallery(this, ${index})">
+            <div class="gallery-item-set" onclick="selectSetGallery(this, ${index})">
+                <img src="${row.URL_IMAGINE_SET}" class="gallery-set-icon" onerror="this.style.display='none'">
                 
-                <div class="set-title">${displayTitle}</div>
-                
-                <div class="set-detail">
-                    <span class="set-label">COD:</span> 
-                    <span class="set-value">${row.COD_SET}</span>
+                <div>
+                    <span class="gallery-set-title">${row.NUME_SET}</span>
+                    
+                    <div class="gallery-set-meta">
+                        Lansare: <span class="gallery-set-val">${row.DATA_LANSARE ? row.DATA_LANSARE.split("T")[0] : 'N/A'}</span>
+                        <span style="margin: 0 5px; color: #444;">|</span> 
+                        Cărți: <span class="gallery-set-val">${row.NUMAR_CARTI}</span>
+                    </div>
                 </div>
-                
-                <div class="set-detail">
-                    <span class="set-label">LANSARE:</span> 
-                    <span class="set-value">${row.DATA_LANSARE ? row.DATA_LANSARE.split("T")[0] : 'N/A'}</span>
-                </div>
-                
-                <div class="set-detail">
-                    <span class="set-label">TOTAL:</span> 
-                    <span class="set-value">${row.NUMAR_CARTI}</span>
-                </div>
-
             </div>`;
         });
         html += '</div>';
@@ -178,8 +184,7 @@ function renderCardGallery(data) {
             let deckName = row.NUME_PACHET;
             let deckFormat = row.FORMAT_JOC;
             
-            // Imaginea de copertă
-            let coverImg = 'cover.jpg';
+            let coverImg = 'assets/cover.jpg';
 
             html += `
             <div class="deck-scene" onclick="selectCardGallery(this, ${index})">
@@ -206,10 +211,10 @@ function renderCardGallery(data) {
         data.forEach((row, index) => {
             let fullName = `${row.NUME} ${row.PRENUME}`;
             
-            let imgSrc = 'avatar.jpg';
+            let imgSrc = 'assets/avatar.jpg';
 
             html += `
-                <div class="mtg-card player-card" onclick="selectCardGallery(this, ${index})">
+                <div class="player-card" onclick="selectSetGallery(this, ${index})">
                     
                     <div class="player-avatar-container">
                         <img src="${imgSrc}" class="player-avatar" alt="User Avatar">
@@ -287,7 +292,7 @@ function renderCardGallery(data) {
 
                 <div class="set-detail">
                     <span class="set-label">COD_SET & ID_LOCAȚIE:</span> 
-                    <span class="set-value">${row.ID_LOCATIE+","+row.COD_SET}</span>
+                    <span class="set-value">${row.COD_SET+","+row.ID_LOCATIE}</span>
                 </div>
 
             </div>`;
@@ -342,6 +347,110 @@ function selectCardGallery(el, index) {
     updateButtons();
 }
 
+function selectSetGallery(el, index) {
+    const prev = document.querySelectorAll('#tableWrapper .selected');
+    prev.forEach(item => item.classList.remove('selected'));
+
+    el.classList.add('selected');
+
+    selectedRow = currentData[index];
+    updateButtons();
+}
+
+async function loadPortfolioView(btnElement) {
+    document.querySelector('.btn-add').disabled = false; 
+    currentTable = 'V_PORTOFOLIU_RARE';
+    selectedRow = null;
+    updateButtons();
+    
+    document.getElementById('viewModeActions').style.display = 'none';
+
+    document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
+    if(btnElement) btnElement.classList.add('active');
+
+    document.getElementById('tableTitle').innerText = "PORTOFOLIU CARTI VALOROASE";
+    document.getElementById('tableWrapper').innerHTML = '<div style="padding:20px; color:#aaa;">Filtering high-value assets...</div>';
+
+    try {
+        const res = await fetch(`http://localhost:3000/api/table/V_PORTOFOLIU_RARE`);
+        if (!res.ok) throw new Error(await res.text());
+        const data = await res.json();
+        currentData = data;
+        renderTable(data); 
+        
+    } catch (e) {
+        document.getElementById('tableWrapper').innerHTML = `<div class="error-msg"><strong>Eroare la încărcare:</strong> ${e.message}</div>`;
+    }
+}
+
+async function loadAnalysisView(btnElement) {
+    document.querySelector('.btn-add').disabled = false; 
+    currentTable = 'V_ANALIZA_PACHETE';
+    selectedRow = null;
+    updateButtons();
+
+    document.getElementById('viewModeActions').style.display = 'none';
+
+    document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
+    if(btnElement) btnElement.classList.add('active');
+
+    document.getElementById('tableTitle').innerText = "ANALIZĂ STATISTICĂ PACHETE";
+    document.getElementById('tableWrapper').innerHTML = '<div style="padding:20px; color:#aaa;">Calculam Statistici...</div>';
+
+    try {
+        const res = await fetch(`http://localhost:3000/api/table/V_ANALIZA_PACHETE`);
+        if (!res.ok) throw new Error(await res.text());
+        const data = await res.json();
+        currentData = data;
+        renderAnalysisTable(data); 
+        
+    } catch (e) {
+        document.getElementById('tableWrapper').innerHTML = `<div class="error-msg"><strong>Eroare analiză:</strong> ${e.message}</div>`;
+    }
+}
+
+function renderAnalysisTable(data) {
+    if (!data || data.length === 0) {
+        document.getElementById('tableWrapper').innerHTML = '<div style="padding:20px; color:#aaa;">Nu exista date.</div>';
+        return;
+    }
+
+    const cols = Object.keys(data[0]);
+    let html = '<table class="analysis-table"><thead><tr>';
+    
+    cols.forEach(c => html += `<th>${c.replace(/_/g, ' ')}</th>`);
+    html += '</tr></thead><tbody>';
+
+    data.forEach((row, index) => {
+        html += `<tr onclick="selectRow(this, ${index})">`; 
+        
+        cols.forEach(col => {
+            let val = row[col];
+
+            if (col === 'MEDIA_MANA_COST') {
+                const num = parseFloat(val);
+                let color = '#ccc';
+                if(num < 2.5) color = '#27ae60'; 
+                else if(num < 3.5) color = '#e67e22'; 
+                else color = '#d3202a'; 
+                val = `<span style="font-weight:bold; color:${color}">${val}</span>`;
+            }
+
+            if (col === 'TOTAL_CARTI') {
+                if(row['FORMAT_JOC'] === 'sealed' && val < 40) {
+                    val = `<span style="color:red; font-weight:bold" title="Illegal Deck!">${val} ⚠️</span>`;
+                }
+            }
+
+            html += `<td>${val}</td>`;
+        });
+        html += '</tr>';
+    });
+    html += '</tbody></table>';
+    
+    document.getElementById('tableWrapper').innerHTML = html;
+}
+
 async function loadWinrateReport(btnElement) {
     document.querySelector('.btn-add').disabled = true; 
     currentTable = 'WINRATE_REPORT';
@@ -392,6 +501,7 @@ async function loadHavingReport(btnElement) {
         document.getElementById('tableWrapper').innerHTML = `<div class="error-msg">Error: ${e.message}</div>`;
     }
 }
+
 function renderHavingTable(data) {
     if (!data || data.length === 0) {
         document.getElementById('tableWrapper').innerHTML = '<div style="padding:20px; color:#aaa;">No data found.</div>';
@@ -519,7 +629,7 @@ async function updateData(data, pkCol) {
         });
         const json = await res.json();
         if(json.success) { closeModal(); loadTable(currentTable, document.querySelector('.nav-btn.active')); }
-        else alert("Spell Fizzled: " + json.error);
+        else alert("EROARE: " + json.error);
     } catch(e) { alert(e); }
 }
 
@@ -532,12 +642,12 @@ async function insertData(data) {
         });
         const json = await res.json();
         if(json.success) { closeModal(); loadTable(currentTable, document.querySelector('.nav-btn.active')); }
-        else alert("Spell Fizzled: " + json.error);
+        else alert("EROARE: " + json.error);
     } catch(e) { alert(e); }
 }
 
 async function deleteItem() {
-    if(!selectedRow || !confirm('Exile this permanent? (Delete)')) return;
+    if(!selectedRow || !confirm('Șterge această entitate?')) return;
     const idCol = Object.keys(selectedRow)[0];
     const idVal = selectedRow[idCol];
     try {
@@ -567,3 +677,172 @@ window.onclick = function(event) {
     if (event.target == modal) closeModal();
 }
 
+// --- FUNCȚII SCRYFALL IMPORT ---
+
+function openScryfallModal() {
+    document.getElementById('scryfallModal').style.display = 'flex';
+    document.getElementById('sf_cardName').value = '';
+    document.getElementById('sf_setCode').value = '';
+    document.getElementById('sf_preview').style.display = 'none';
+}
+
+function closeScryfallModal() {
+    document.getElementById('scryfallModal').style.display = 'none';
+}
+
+async function searchAndImportScryfall() {
+    const name = document.getElementById('sf_cardName').value.trim();
+    const setCode = document.getElementById('sf_setCode').value.trim().toUpperCase();
+
+    if (!name) {
+        alert("Te rog introdu un nume de carte.");
+        return;
+    }
+
+    let url = `https://api.scryfall.com/cards/named?fuzzy=${encodeURIComponent(name)}`;
+    if (setCode) {
+        url += `&set=${setCode}`;
+    }
+
+    document.getElementById('sf_foundName').innerText = "Căutăm pe Scryfall...";
+    document.getElementById('sf_preview').style.display = 'block';
+
+    try {
+        const res = await fetch(url);
+        if (!res.ok) {
+            throw new Error("Cartea nu a fost găsită pe Scryfall (sau setul e greșit).");
+        }
+        const sfData = await res.json();
+
+        const checkSetRes = await fetch(`http://localhost:3000/api/table/SETURI`);
+        const allSets = await checkSetRes.json();
+        
+        const foundSetCode = sfData.set.toUpperCase();
+        
+        const setExists = allSets.some(s => s.COD_SET === foundSetCode);
+
+        document.getElementById('sf_foundName').innerText = sfData.name;
+        document.getElementById('sf_foundSet').innerText = `Set: ${foundSetCode}`;
+        if(sfData.image_uris) {
+            document.getElementById('sf_img').src = sfData.image_uris.small;
+        }
+
+        if (!setExists) {
+            alert(`EROARE: Cartea găsită aparține setului '${foundSetCode}', dar acest set NU există în baza ta de date!\n\nTe rog adaugă întâi setul '${foundSetCode}' sau caută o versiune a cărții dintr-un set pe care îl ai.`);
+            return;
+        }
+
+        const oracleData = {
+            NUME_CARTE: sfData.name,
+            COST_MANA: sfData.cmc || 0,
+            RARITATE: sfData.rarity,
+            LINIE_TIP: sfData.type_line,
+            DESCRIERE: sfData.oracle_text || "No text",
+            URL_IMAGINE: sfData.image_uris ? sfData.image_uris.normal : 'No Image',
+            PUTERE: parseInt(sfData.power) || null,
+            DURITATE: parseInt(sfData.toughness) || null,
+            LOIALITATE: parseInt(sfData.loyalty) || null,
+            APARARE: parseInt(sfData.defense) || null,
+            NUMAR_DETINUT: 0
+        };
+
+        // Confirmare utilizator
+        if(!confirm(`Am găsit: ${sfData.name} (${foundSetCode}). Importăm?`)) return;
+
+        // Inserăm în CARTI
+        await insertDataGeneric('CARTI', oracleData);
+
+        // Inserăm în CARTI_SETURI legătura
+        const linkData = {
+            COD_SET: foundSetCode,
+            NUME_CARTE: sfData.name,
+            NUMAR_COPII: 0
+        };
+        await insertDataGeneric('CARTI_SETURI', linkData);
+
+        alert("Carte importată cu succes!");
+        closeScryfallModal();
+        loadTable('CARTI', document.querySelector('.nav-btn.active'));
+
+    } catch (e) {
+        alert("Eroare: " + e.message);
+        document.getElementById('sf_foundName').innerText = "Eroare";
+    }
+}
+
+async function insertDataGeneric(tableName, dataObj) {
+    const res = await fetch(`http://localhost:3000/api/insert/generic`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ tableName: tableName, data: dataObj })
+    });
+    const json = await res.json();
+    if (!json.success) throw new Error(json.error);
+}
+
+function openScryfallSetModal() {
+    document.getElementById('scryfallSetModal').style.display = 'flex';
+    document.getElementById('sf_setCodeInput').value = '';
+    document.getElementById('sf_set_preview').style.display = 'none';
+    setTimeout(() => document.getElementById('sf_setCodeInput').focus(), 100);
+}
+
+function closeScryfallSetModal() {
+    document.getElementById('scryfallSetModal').style.display = 'none';
+}
+
+async function fetchAndImportSet() {
+    const codeInput = document.getElementById('sf_setCodeInput').value.trim();
+    
+    if (!codeInput) {
+        alert("Introduceți un cod de set (ex: ONE).");
+        return;
+    }
+
+    const url = `https://api.scryfall.com/sets/${codeInput}`;
+    
+    document.getElementById('sf_setFoundName').innerText = "Căutăm...";
+    document.getElementById('sf_set_preview').style.display = 'block';
+
+    try {
+        const res = await fetch(url);
+        if (!res.ok) {
+            throw new Error("Setul nu a fost găsit. Verifică codul (ex: NEO, WOE).");
+        }
+        const sfData = await res.json();
+
+        document.getElementById('sf_setFoundName').innerText = sfData.name;
+        document.getElementById('sf_setReleased').innerText = sfData.released_at;
+        document.getElementById('sf_setCount').innerText = sfData.card_count;
+        document.getElementById('sf_setIcon').src = sfData.icon_svg_uri;
+
+        const checkRes = await fetch(`http://localhost:3000/api/table/SETURI`);
+        const existingSets = await checkRes.json();
+        const exists = existingSets.some(s => s.COD_SET === sfData.code.toUpperCase());
+
+        if (exists) {
+            alert(`Setul ${sfData.code.toUpperCase()} există deja în baza de date!`);
+            return;
+        }
+
+        if(!confirm(`Importăm setul "${sfData.name}"?`)) return;
+
+        const oracleSetData = {
+            COD_SET: sfData.code.toUpperCase(),
+            NUME_SET: sfData.name,
+            DATA_LANSARE: sfData.released_at,
+            NUMAR_CARTI: sfData.card_count,
+            URL_IMAGINE_SET: sfData.icon_svg_uri || 'https://svgs.scryfall.io/sets/default.svg'
+        };
+
+        await insertDataGeneric('SETURI', oracleSetData);
+
+        alert("Set importat cu succes!");
+        closeScryfallSetModal();
+        loadTable('SETURI', document.querySelector('.nav-btn.active'));
+
+    } catch (e) {
+        alert("Eroare: " + e.message);
+        document.getElementById('sf_setFoundName').innerText = "Eroare";
+    }
+}
