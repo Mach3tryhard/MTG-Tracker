@@ -133,7 +133,7 @@ app.post('/api/insert/generic', async (req, res) => {
     }
 });
 
-//  CERINTA C
+// CERINTA C
 app.get('/api/reports/winrate', async (req, res) => {
     let connection;
     try {
@@ -167,4 +167,32 @@ app.get('/api/reports/winrate', async (req, res) => {
 
 app.listen(3000, () => {
     console.log('Serverul ruleaza pe 3000...');
+});
+
+// CERINTA D 
+app.get('/api/reports/rarity-distribution', async (req, res) => {
+    let connection;
+    try {
+        connection = await oracledb.getConnection(dbConfig);
+
+        const sql = `
+            SELECT 
+                raritate AS "RARITATE", 
+                COUNT(*) AS "NUMAR_CARTI" 
+            FROM carti 
+            GROUP BY raritate 
+            HAVING COUNT(*) >= 1
+            ORDER BY COUNT(*) DESC
+        `;
+        
+        const result = await connection.execute(sql, [], { outFormat: oracledb.OUT_FORMAT_OBJECT });
+
+        res.json(result.rows);
+
+    } catch (err) {
+        console.error(err);
+        res.status(500).json({ error: "Eroare raport HAVING: " + err.message });
+    } finally {
+        if (connection) try { await connection.close(); } catch (e) {}
+    }
 });

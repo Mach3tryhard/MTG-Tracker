@@ -29,7 +29,7 @@ async function loadTable(tableName, btnElement) {
     if(viewActions) viewActions.style.display = 'flex';
     
 
-    document.getElementById('tableWrapper').innerHTML = '<div style="padding:20px; color:#aaa;">Summoning data...</div>';
+    document.getElementById('tableWrapper').innerHTML = '<div style="padding:20px; color:#aaa;">Se caută datele...</div>';
 
     try {
         const res = await fetch(`http://localhost:3000/api/table/${tableName}`);
@@ -77,7 +77,7 @@ function renderCurrentView() {
 // --- RENDERIZARE TABEL STANDARD ---
 function renderTable(data) {
     if (!data || data.length === 0) {
-        document.getElementById('tableWrapper').innerHTML = '<div style="padding:20px; color:#aaa;">Graveyard is empty (No data).</div>';
+        document.getElementById('tableWrapper').innerHTML = '<div style="padding:20px; color:#aaa;">Nu există date.</div>';
         return;
     }
     const cols = Object.keys(data[0]);
@@ -362,13 +362,69 @@ async function loadWinrateReport(btnElement) {
         const data = await res.json();
         renderWinrateTable(data);
     } catch (e) {
-        document.getElementById('tableWrapper').innerHTML = `<div class="error-msg"><strong>Calculation Error:</strong> ${e.message}</div>`;
+        document.getElementById('tableWrapper').innerHTML = `<div class="error-msg"><strong>Calculăm erorile...</strong> ${e.message}</div>`;
     }
+}
+
+async function loadHavingReport(btnElement) {
+    document.querySelector('.btn-add').disabled = true; 
+    currentTable = 'RARITY_DISTRIBUTION_REPORT';
+    selectedRow = null;
+    updateButtons();
+
+    document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
+    if(btnElement) btnElement.classList.add('active');
+
+    const viewActions = document.getElementById('viewModeActions');
+    if(viewActions) viewActions.style.display = 'none';
+
+    document.getElementById('tableTitle').innerText = "Distribuție Rarități";
+    document.getElementById('tableWrapper').innerHTML = '<div style="padding:20px; color:#aaa;">Calculăm statisticile...</div>';
+
+    try {
+        const res = await fetch('http://localhost:3000/api/reports/rarity-distribution');
+        if (!res.ok) throw new Error(await res.text());
+        const data = await res.json();
+
+        renderHavingTable(data); 
+
+    } catch (e) {
+        document.getElementById('tableWrapper').innerHTML = `<div class="error-msg">Error: ${e.message}</div>`;
+    }
+}
+function renderHavingTable(data) {
+    if (!data || data.length === 0) {
+        document.getElementById('tableWrapper').innerHTML = '<div style="padding:20px; color:#aaa;">No data found.</div>';
+        return;
+    }
+    const cols = Object.keys(data[0]);
+    let html = '<table><thead><tr>';
+    
+    cols.forEach(c => html += `<th>${c}</th>`); 
+    
+    html += '</tr></thead><tbody>';
+    
+    data.forEach(row => {
+        html += `<tr>`; 
+        
+        cols.forEach(c => {
+            let val = row[c] !== null ? row[c] : '';
+            
+            if (typeof val === 'string' && val.includes('T') && /^\d{4}-\d{2}-\d{2}T/.test(val)) {
+                val = val.split('T')[0];
+            }
+            
+            html += `<td>${val}</td>`;
+        });
+        html += '</tr>';
+    });
+    html += '</tbody></table>';
+    document.getElementById('tableWrapper').innerHTML = html;
 }
 
 function renderWinrateTable(data) {
     if (!data || data.length === 0) {
-        document.getElementById('tableWrapper').innerHTML = '<div style="padding:20px; color:#aaa;">No matches recorded for Sealed BO3 format.</div>';
+        document.getElementById('tableWrapper').innerHTML = '<div style="padding:20px; color:#aaa;">Nu se gasesc date.</div>';
         return;
     }
     const cols = Object.keys(data[0]);
@@ -510,3 +566,4 @@ window.onclick = function(event) {
     const modal = document.getElementById('unifiedModal');
     if (event.target == modal) closeModal();
 }
+
