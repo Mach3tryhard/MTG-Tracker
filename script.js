@@ -15,24 +15,17 @@ async function loadTable(tableName, btnElement) {
 
     currentTable = tableName;
 
-    // LOGICA BUTOANE IMPORT
     const btnScryfallCard = document.getElementById('btnScryfall');
     const btnScryfallSet = document.getElementById('btnScryfallSet');
-
     if(btnScryfallCard) btnScryfallCard.style.display = 'none';
     if(btnScryfallSet) btnScryfallSet.style.display = 'none';
 
-    if (tableName === 'CARTI') {
-        if(btnScryfallCard) btnScryfallCard.style.display = 'inline-block';
-    } 
-    else if (tableName === 'SETURI') {
-        if(btnScryfallSet) btnScryfallSet.style.display = 'inline-block';
-    }
+    if (tableName === 'CARTI' && btnScryfallCard) btnScryfallCard.style.display = 'inline-block';
+    else if (tableName === 'SETURI' && btnScryfallSet) btnScryfallSet.style.display = 'inline-block';
 
     selectedRow = null;
     updateButtons();
     
-
     if (btnElement) {
         document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
         btnElement.classList.add('active');
@@ -43,13 +36,19 @@ async function loadTable(tableName, btnElement) {
     
     const viewActions = document.getElementById('viewModeActions');
     if(viewActions) viewActions.style.display = 'flex';
-    
 
     document.getElementById('tableWrapper').innerHTML = '<div style="padding:20px; color:#aaa;">Se caută datele...</div>';
 
+    let apiEndpoint = tableName;
+
+    if (tableName === 'PACHETE' && currentViewMode === 'gallery') {
+        apiEndpoint = 'V_PACHETE_GALERIE';
+    }
+
     try {
-        const res = await fetch(`http://localhost:3000/api/table/${tableName}`);
+        const res = await fetch(`http://localhost:3000/api/table/${apiEndpoint}`);
         if (!res.ok) throw new Error(await res.text());
+        
         const data = await res.json();
         currentData = data;
         
@@ -62,13 +61,18 @@ async function loadTable(tableName, btnElement) {
 
 
 function switchView(mode) {
+    if (currentViewMode === mode) return;
+
     currentViewMode = mode;
     updateViewButtonsUI();
     
-    renderCurrentView();
-    
-    selectedRow = null;
-    updateButtons();
+    if (currentTable === 'PACHETE') {
+        loadTable('PACHETE', null);
+    } else {
+        renderCurrentView();
+        selectedRow = null;
+        updateButtons();
+    }
 }
 
 function updateViewButtonsUI() {
@@ -108,9 +112,12 @@ function renderTable(data) {
             if (typeof val === 'string' && val.includes('T') && /^\d{4}-\d{2}-\d{2}T/.test(val)) {
                 val = val.split('T')[0];
             }
-            else if ((c === 'URL_IMAGINE' || c=== 'URL_IMAGINE_SET') && val.startsWith('http')) {
+            else if (c === 'URL_IMAGINE' && val.startsWith('http')) {
                 val = `<img src="${val}" class="card-thumb" alt="Card Art">`;
-            } 
+            }
+            else if (c=== 'URL_IMAGINE_SET' && val.startsWith('http')) {
+                val = `<img src="${val}" class="table-set-icon" alt="Set Icon">`;
+            }
             else if (c === 'DESCRIERE' || val.length > 50) {
                 val = `<span class="truncate" title="${val}">${val}</span>`;
             }
@@ -139,7 +146,9 @@ function renderCardGallery(data) {
 
             html += `
                 <div class="mtg-card" onclick="selectCardGallery(this, ${index})">
-                    <img src="${imgSrc}" onerror="this.src='https://gatherer.wizards.com/Handlers/Image.ashx?type=card&name=Card+Back'">
+                    <div class="card-img-wrapper">
+                        <img src="${imgSrc}" onerror="this.src='https://gatherer.wizards.com/Handlers/Image.ashx?type=card&name=Card+Back'">
+                    </div>
                     <div class="card-name">CANTITATE: ${row.NUMAR_DETINUT}</div>
                 </div>`;
         });
@@ -184,18 +193,22 @@ function renderCardGallery(data) {
             let deckName = row.NUME_PACHET;
             let deckFormat = row.FORMAT_JOC;
             
-            let coverImg = 'assets/cover.jpg';
+            let coverUrl = row.URL_COPERTA || row.url_coperta;
+            
+            if (!coverUrl || !coverUrl.startsWith('http')) {
+                 coverUrl = 'https://gatherer.wizards.com/Handlers/Image.ashx?type=card&name=Card+Back';
+            }
 
             html += `
-            <div class="deck-scene" onclick="selectCardGallery(this, ${index})">
-                <div class="deck-box">
-                    <div class="deck-face-front" style="background-image: url('${coverImg}');"></div>
-                    
-                    <div class="deck-banner">
-                        <div class="deck-name">${deckName}</div>
-                        <div class="deck-format">${deckFormat}</div>
-                    </div>
+            <div class="deck-box-sideways" onclick="selectCardGallery(this, ${index})">
+                
+                <div class="deck-side-cover" style="background-image: url('${coverUrl}');"></div>
+                
+                <div class="deck-side-info">
+                    <div class="deck-side-name" title="${deckName}">${deckName}</div>
+                    <div class="deck-side-format">${deckFormat}</div>
                 </div>
+
             </div>`;
         });
 
@@ -223,12 +236,12 @@ function renderCardGallery(data) {
                     <div class="player-name">${fullName}</div>
                     
                     <div class="player-detail">
-                        <span class="player-label">EMAIL:</span> 
+                        <span class="player-label">WOC EMAIL:</span> 
                         <span class="player-value">${row.EMAIL || '-'}</span>
                     </div>
                     
                     <div class="player-detail">
-                        <span class="player-label">GAMEID:</span> 
+                        <span class="player-label">USERNAME:</span> 
                         <span class="player-value">${row.GAMEID}</span>
                     </div>
 

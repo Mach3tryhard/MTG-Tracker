@@ -137,6 +137,40 @@ tr.selected td { color: var(--mtg-gold); font-weight: bold; }
     gap: 20px;
     padding: 20px;
 }
+
+.card-img-wrapper {
+    position: relative; /* Esențial pentru ca ::after să stea aici */
+    width: 100%;
+    overflow: hidden;   /* Ascunde colțurile imaginii care ies afară */
+    background-color: #000;
+}
+
+/* Imaginea propriu-zisă */
+.card-img-wrapper img {
+    display: block;
+    width: 100%;
+    height: auto;
+    min-height: 250px;
+    object-fit: cover;
+    /* Nu mai punem border-radius aici, se ocupă wrapper-ul */
+}
+
+/* TRUCUL MAGIC: Rama interioară care acoperă marginile albe */
+.card-img-wrapper::after {
+    content: "";
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    
+    /* Desenăm o umbră interioară (inset) neagră de 4px */
+    box-shadow: inset 0 0 0 6px #0c0c0c; 
+    
+    pointer-events: none;
+    z-index: 2;
+}
+
 .mtg-card {
     border-radius: 4.75% / 3.5%;
     overflow: hidden;
@@ -146,13 +180,14 @@ tr.selected td { color: var(--mtg-gold); font-weight: bold; }
     transition: transform 0.2s;
     display: flex; flex-direction: column; justify-content: space-between;
 }
-.mtg-card:hover { transform: translateY(-10px); border-color: var(--mtg-light-grey); }
+.mtg-card:hover { transform: translateY(-5px); border-color: var(--mtg-light-grey); }
 .mtg-card.selected {
     border: 2px solid var(--mtg-gold);
     box-shadow: 0 0 15px rgba(198, 166, 104, 0.4);
     transform: scale(1.02);
 }
 .mtg-card img {
+
     background-color: #120c0c;
     width: 100%; height: auto; border-radius: 6px;/* margin-bottom: 8px;*/
     min-height: 250px; background: #000; object-fit: cover;
@@ -261,126 +296,14 @@ tr.selected td { color: var(--mtg-gold); font-weight: bold; }
     font-size: 1rem;
 }
 
-.deck-scene {
-    width: 220px;
-    height: 310px;
-    perspective: 1200px;
-    margin: 30px auto;
-    cursor: pointer;
-    display: flex;
-    justify-content: center;
-    align-items: center;
+.table-set-icon {
+    width: 50px;
+    height: 50px;
+    object-fit: contain;
+    
+    background-color: transparent;
+    padding: 5px;
+    
+    filter: invert(1); 
+    display: block;
 }
-
-/* Cutia */
-.deck-box {
-    width: 100%;
-    height: 100%;
-    position: relative;
-    transform-style: preserve-3d;
-    
-    transform: rotateY(-25deg) rotateX(15deg);
-    transition: transform 0.3s ease-out;
-}
-
-/* Imaginea */
-.deck-face-front {
-    position: absolute;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    
-    background-size: cover;
-    background-position: center;
-    border-radius: 6px;
-    
-    transform: translateZ(0); 
-    
-    box-shadow: inset 0 0 20px rgba(0,0,0,0.5); 
-    z-index: 2;
-}
-
-/* Grosimea*/
-.deck-box::after {
-    content: '';
-    position: absolute;
-    top: 0;
-    right: 0; 
-    
-    width: 40px; 
-    height: 99%;
-    
-    background: linear-gradient(to left, #111, #2c2c2c);
-    border: 1px solid #000;
-    
-    transform-origin: right;
-    transform: rotateY(-90deg);
-}
-
-/* Capacul */
-.deck-box::before {
-    content: '';
-    position: absolute;
-    top: 0;
-    left: 0;
-    
-    width: 100%;
-    height: 40px; 
-    
-    background: linear-gradient(to top, #2c2c2c, #111);
-    border: 1px solid #000;
-    
-    transform-origin: top;
-    transform: rotateX(-90deg);
-}
-
-/* Eticheta*/
-.deck-banner {
-    position: absolute;
-    bottom: 25px;
-    left: 0;
-    
-    width: 100%; 
-    box-sizing: border-box;
-
-    transform: translateZ(1px); 
-    transform-style: preserve-3d;
-
-    background: rgba(15, 15, 15, 0.95);
-    border-top: 2px solid #d4af37;
-    border-bottom: 2px solid #d4af37;
-    color: #fff;
-    
-    text-align: center;
-    padding: 10px 5px;
-    
-    box-shadow: 0 4px 10px rgba(0,0,0,0.5);
-}
-
-.deck-name {
-    font-family: 'MyCustomFont', serif; /* Fontul tău */
-    font-size: 1.1rem;
-    color: #fceeb5;
-    text-transform: uppercase;
-    letter-spacing: 1px;
-    text-shadow: 0 2px 4px rgba(0,0,0,0.8);
-}
-
-.deck-format {
-    font-size: 0.75rem;
-    color: #aaa;
-    margin-top: 3px;
-    text-transform: uppercase;
-}
-
-.deck-scene:hover .deck-box {
-    transform: rotateY(0deg) rotateX(0deg) scale(1.05) translateY(-10px);
-    z-index: 10;
-}
-
-.deck-scene:hover .deck-banner {
-    border-color: #ffeaa7;
-    background: rgba(0, 0, 0, 1);
-}
-
