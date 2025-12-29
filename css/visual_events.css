@@ -1,0 +1,78 @@
+.event-card {
+    background: linear-gradient(145deg, #1c1a1a, #2d2a24);
+    
+    border: 1px solid #333;
+    
+    border-left: 5px solid #75592f; 
+    
+    border-radius: 4px;
+    padding: 15px;
+    display: flex;
+    flex-direction: column;
+    text-align: left; 
+    
+    box-shadow: 0 4px 6px rgba(0,0,0,0.4);
+    transition: all 0.3s ease;
+}
+
+.event-card:hover {
+    transform: translateY(-5px);
+    border-left-color: #a18549; 
+    box-shadow: 0 5px 15px rgba(110, 92, 31, 0.2);
+    background: linear-gradient(145deg, #252422, #38342e);
+}
+
+.event-title {
+    font-family: 'assets/MTG_FONT';
+    color: #c6a668;
+    font-size: 1.35rem;
+    font-weight: 600;
+    border-bottom: 1px solid #444;
+    padding-bottom: 10px;
+    margin-bottom: 15px;
+    background-color: transparent; 
+    text-align: left;
+    letter-spacing: 0.5px;
+}
+
+.event-detail {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    
+    background-color: rgba(0, 0, 0, 0.3);
+    border: 1px solid rgba(255,255,255,0.03);
+    
+    margin-bottom: 8px;
+    padding: 8px 12px;
+    border-radius: 3px;
+    
+    font-family: 'assets/MTG_FONT';
+    font-size: 0.9rem;
+}
+
+.event-label {
+    color: #888;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    font-size: 0.75rem;
+}
+
+.event-value {
+    color: #fdfefe;
+    font-weight: 500;
+    font-size: 1rem;
+}
+
+.table-event-icon {
+    width: 50px;
+    height: 50px;
+    object-fit: contain;
+    
+    background-color: transparent;
+    padding: 5px;
+    
+    filter: invert(1); 
+    display: block;
+}

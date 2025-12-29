@@ -12,7 +12,6 @@
     border: 2px solid #333;
 }
 
-/* Secțiunea imaginii (Acum ocupă tot containerul) */
 .deck-side-cover {
     position: absolute;
     top: 0;
@@ -26,23 +25,14 @@
     background-repeat: no-repeat;
 }
 
-/* --- UMBRA SEMILUNĂ (Crescent Shadow) pe imagine --- */
-/* Folosim un pseudo-element pentru a desena umbra peste imagine, dar sub text */
 .deck-box-sideways::after {
     content: '';
     position: absolute;
-    top: 0;      /* O lipim de partea de sus */
+    top: 0;
     left: 0;
     width: 100%;
-    height: 100%; /* Ocupă tot spațiul pentru a permite desenarea formei */
+    height: 100%;
     
-    /* EXPLICATIE GRADIENT:
-       - circle at 50% -70%: Centrul cercului este mult DEASUPRA cutiei.
-       - Tu vezi doar partea de jos a cercului care intră în imagine.
-       - rgba(0,0,0, 1): Negru complet opac.
-       - 0% ... 45%: Rămâne negru solid pe aproape jumătate din raza cercului.
-       - 45% ... 46%: Trece brusc la transparent. Asta elimină blur-ul.
-    */
     background: radial-gradient(
         circle at 50% -50%, 
         rgba(0, 0, 0, 0) 30%, 
@@ -54,30 +44,27 @@
     pointer-events: none;
 }
 
-/* Secțiunea de text (Forma de "Cârnat" suprapusă) */
 .deck-side-info {
     position: absolute;
-    bottom: 20px; /* Distanța față de partea de jos */
+    bottom: 20px;
     left: 50%;
-    transform: translateX(-50%); /* Centrare orizontală perfectă */
+    transform: translateX(-50%);
     
-    width: 85%; /* Nu ocupă toată lățimea */
+    width: 85%;
     padding: 10px 20px;
     
-    /* Stilul "Cârnat" / "Pilulă" */
-    background-color: rgba(15, 15, 15, 0.85); /* Fundal întunecat semi-transparent */
-    border-radius: 50px; /* Rotunjire maximă */
-    border: 1px solid var(--mtg-gold); /* Bordură aurie pentru contrast */
-    backdrop-filter: blur(2px); /* Opțional: ușor blur pe fundal pentru lizibilitate */
+    background-color: rgba(15, 15, 15, 0.85);
+    border-radius: 50px; 
+    border: 1px solid var(--mtg-gold);
+    backdrop-filter: blur(2px);
 
     display: flex;
     flex-direction: column;
     justify-content: center;
-    text-align: center; /* Text centrat */
-    z-index: 2; /* Cel mai de sus strat */
+    text-align: center;
+    z-index: 2;
 }
 
-/* Stiluri text */
 .deck-side-name {
     color: var(--mtg-gold); font-family: 'Cinzel', serif; font-weight: bold;
     font-size: 1.1em; margin-bottom: 2px;
@@ -85,18 +72,17 @@
 }
 
 .deck-side-format {
-    color: #ccc; /* Culoare mai deschisă pentru contrast pe fundalul semi-transparent */
+    color: #ccc; 
     font-size: 0.8em; text-transform: uppercase; letter-spacing: 1px;
 }
 
-/* --- Stări Hover și Selected --- */
 .deck-box-sideways:hover {
     transform: translateY(-0px);
     border-color: #555;
 }
 
 .deck-box-sideways:hover .deck-side-info {
-     background-color: rgba(15, 15, 15, 0.95); /* Devine mai opac la hover */
+     background-color: rgba(15, 15, 15, 0.95); 
 }
 
 .deck-box-sideways.selected {

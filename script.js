@@ -196,7 +196,7 @@ function renderCardGallery(data) {
             let coverUrl = row.URL_COPERTA || row.url_coperta;
             
             if (!coverUrl || !coverUrl.startsWith('http')) {
-                 coverUrl = 'https://gatherer.wizards.com/Handlers/Image.ashx?type=card&name=Card+Back';
+                 coverUrl = '/assets/gray.png';
             }
 
             html += `
@@ -259,22 +259,33 @@ function renderCardGallery(data) {
         data.forEach((row, index) => {
             let displayTitle = row.NUME_LOCATIE;
 
-            html += `
-            <div class="mtg-card set-card" onclick="selectCardGallery(this, ${index})">
-                
-                <div class="set-title">${displayTitle}</div>
-                
-                <div class="set-detail">
-                    <span class="set-label">ADRESĂ:</span> 
-                    <span class="set-value">${row.TARA+", "+row.ORAS+", "+row.STRADA+", "+row.NUMAR}</span>
-                </div>
-                
-                <div class="set-detail">
-                    <span class="set-label">PARTENERIAT:</span> 
-                    <span class="set-value">${row.PARTENER_WOTC}</span>
-                </div>
+            let imgSrc = 'assets/locatie.png';
 
-            </div>`;
+            html += `
+                <div class="player-card" onclick="selectCardGallery(this, ${index})">
+                    
+                    <div class="player-avatar-container">
+                        <img src="${imgSrc}" class="player-avatar" alt="User Avatar">
+                    </div>
+
+                    <div class="player-name">${displayTitle}</div>
+                    
+                    <div class="player-detail">
+                        <span class="player-label">ȚARA:</span> 
+                        <span class="player-value">${row.TARA}</span>
+                    </div>
+
+                    <div class="player-detail">
+                        <span class="player-label">ADRESA:</span> 
+                        <span class="player-value">${row.ORAS+", "+row.STRADA+", "+row.NUMAR}</span>
+                    </div>
+                    
+                    <div class="player-detail">
+                        <span class="player-label">PARTENERIAT:</span> 
+                        <span class="player-value">${row.PARTENER_WOTC}</span>
+                    </div>
+
+                </div>`;
         });
         html += '</div>';
         document.getElementById('tableWrapper').innerHTML = html;
@@ -289,23 +300,28 @@ function renderCardGallery(data) {
             let displayTitle = row.NUME_EVENIMENT;
 
             html += `
-            <div class="mtg-card set-card" onclick="selectCardGallery(this, ${index})">
+            <div class="mtg-card event-card" onclick="selectCardGallery(this, ${index})">
                 
-                <div class="set-title">${displayTitle}</div>
+                <div class="event-title">${displayTitle}</div>
                 
-                <div class="set-detail">
-                    <span class="set-label">DATĂ:</span> 
-                    <span class="set-value">${row.DATA_EVENIMENT ? row.DATA_EVENIMENT.split("T")[0] : 'N/A'}</span>
+                <div class="event-detail">
+                    <span class="event-label">DATĂ:</span> 
+                    <span class="event-value">${row.DATA_EVENIMENT ? row.DATA_EVENIMENT.split("T")[0] : 'N/A'}</span>
                 </div>
                 
-                <div class="set-detail">
-                    <span class="set-label">TIP:</span> 
-                    <span class="set-value">${row.TIP}</span>
+                <div class="event-detail">
+                    <span class="event-label">TIP:</span> 
+                    <span class="event-value">${row.TIP}</span>
                 </div>
 
-                <div class="set-detail">
-                    <span class="set-label">COD_SET & ID_LOCAȚIE:</span> 
-                    <span class="set-value">${row.COD_SET+","+row.ID_LOCATIE}</span>
+                <div class="event-detail">
+                    <span class="event-label">COD_SET:</span> 
+                    <span class="event-value">${row.COD_SET}</span>
+                </div>
+
+                <div class="event-detail">
+                    <span class="event-label">ID_LOCAȚIE:</span> 
+                    <span class="event-value">${row.ID_LOCATIE}</span>
                 </div>
 
             </div>`;
@@ -313,43 +329,66 @@ function renderCardGallery(data) {
         html += '</div>';
         document.getElementById('tableWrapper').innerHTML = html;
     }
-    if(currentTable=='MECIURI'){
+    if (currentTable == 'MECIURI') {
         if (!data || data.length === 0) {
             document.getElementById('tableWrapper').innerHTML = '<div style="padding:20px;">Nu există date pentru galerie.</div>';
             return;
         }
-        let html = '<div class="meciuri-grid">';
+        let html = '<div class="card-grid">';
+        
         data.forEach((row, index) => {
+            let myScore = parseInt(row.JOCURI_CASTIGATE) || 0;
+            let oppScore = parseInt(row.JOCURI_PIERDUTE) || 0;
+            let round = row.RUNDA || '-';
+            let eventId = row.ID_EVENIMENT || 'N/A';
+            let matchId = row.ID_MECI;
+
+            let bgColor;
+            if (myScore > oppScore) {
+                bgColor = '#27ae60';
+            } else if (myScore < oppScore) {
+                bgColor = '#c0392b';
+            } else {
+                bgColor = '#ecd138ff';
+            }
 
             html += `
-            <div class="mtg-card set-card" onclick="selectCardGallery(this, ${index})">
+            <div class="match-card" onclick="selectCardGallery(this, ${index})">
                 
-                <div class="set-title"> MECI ${row.ID_MECI}</div>
+                <div class="match-header">MECI ${matchId}</div>
                 
-                <div class="set-detail">
-                    <span class="set-label">SCOR: </span> 
-                    <span class="set-value">${row.JOCURI_CASTIGATE+" la " + row.JOCURI_PIERDUTE}</span>
-                </div>
-                
-                <div class="set-detail">
-                    <span class="set-label">REZULTAT:</span> 
-                    <span style="${row.JOCURI_CASTIGATE<row.JOCURI_PIERDUTE ? "color:red;" : "color:green;"} font-family: monospace; font-size: 1rem;">${row.JOCURI_CASTIGATE<row.JOCURI_PIERDUTE ? "PIERDUT" : "CASTIGAT"}</span>
+                <div class="match-score-area">
+                    
+                    <div class="score-layer layer-bottom" style="background-color: ${bgColor}"></div>
+                    
+                    <div class="score-layer layer-top" style="background-color: ${bgColor}; top: 2px; left: 2px;"></div>
+
+                    <div class="score-number score-left">
+                        ${myScore}
+                    </div>
+                    
+                    <div class="score-number score-right">
+                        ${oppScore}
+                    </div>
                 </div>
 
-                <div class="set-detail">
-                    <span class="set-label">RUNDA:</span> 
-                    <span class="set-value">${row.RUNDA}</span>
-                </div>
-
-                <div class="set-detail">
-                    <span class="set-label">EVENIMENTUL: </span> 
-                    <span class="set-value">${row.ID_EVENIMENT}</span>
+                <div class="match-footer">
+                    <div class="match-footer-item">
+                        <span class="mf-label">RUNDA</span>
+                        <span class="mf-val">${round}</span>
+                    </div>
+                    <div class="match-footer-item">
+                        <span class="mf-label">EVENIMENT</span>
+                        <span class="mf-val">#${eventId}</span>
+                    </div>
                 </div>
 
             </div>`;
         });
+        
         html += '</div>';
         document.getElementById('tableWrapper').innerHTML = html;
+        return;
     }
 }
 

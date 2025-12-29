@@ -46,7 +46,7 @@
 }
 .player-name {
     font-size: 1.2rem;
-    color: #f0e4b5;
+    color: #c6a668;
     margin-bottom: 15px;
     border-bottom: none;
     font-weight: 600;
@@ -64,7 +64,7 @@
 
 .player-label {
     font-weight: bold;
-    color: #c6a668;
+    color: #888;
     margin-right: 5px;
     font-size: 0.75rem;
 }
