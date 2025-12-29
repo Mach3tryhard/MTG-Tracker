@@ -355,16 +355,6 @@ function selectCardGallery(el, index) {
     }
 }
 
-function selectSetGallery(el, index) {
-    const prev = document.querySelectorAll('#tableWrapper .selected');
-    prev.forEach(item => item.classList.remove('selected'));
-
-    el.classList.add('selected');
-
-    selectedRow = currentData[index];
-    updateButtons();
-}
-
 async function loadPortfolioView(btnElement) {
     document.querySelector('.btn-add').disabled = false; 
     currentTable = 'V_PORTOFOLIU_RARE';
