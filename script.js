@@ -12,7 +12,7 @@ window.onload = () => {
 async function loadTable(tableName, btnElement) {
     const btnAdd = document.querySelector('.btn-add');
     if(btnAdd) btnAdd.disabled = false;
-
+    const viewActions = document.getElementById('viewModeActions');
     currentTable = tableName;
 
     const btnScryfallCard = document.getElementById('btnScryfall');
@@ -22,6 +22,12 @@ async function loadTable(tableName, btnElement) {
 
     if (tableName === 'CARTI' && btnScryfallCard) btnScryfallCard.style.display = 'inline-block';
     else if (tableName === 'SETURI' && btnScryfallSet) btnScryfallSet.style.display = 'inline-block';
+    if(tableName === 'CARTI_SETURI' || tableName === 'PACHETE_CARTI' || tableName === 'MECIURI_JUCATORI' || tableName === 'PACHETE_MECIURI'){
+        viewActions.style.display = 'none';
+    }
+    else{
+        if(viewActions) viewActions.style.display = 'flex';
+    }
 
     selectedRow = null;
     updateButtons();
@@ -33,9 +39,6 @@ async function loadTable(tableName, btnElement) {
 
     const titleEl = document.getElementById('tableTitle');
     if(titleEl) titleEl.innerText = tableName;
-    
-    const viewActions = document.getElementById('viewModeActions');
-    if(viewActions) viewActions.style.display = 'flex';
 
     document.getElementById('tableWrapper').innerHTML = '<div style="padding:20px; color:#aaa;">Se caută datele...</div>';
 
@@ -308,7 +311,7 @@ function renderCardGallery(data) {
                     <span class="event-label">DATĂ:</span> 
                     <span class="event-value">${row.DATA_EVENIMENT ? row.DATA_EVENIMENT.split("T")[0] : 'N/A'}</span>
                 </div>
-                
+            
                 <div class="event-detail">
                     <span class="event-label">TIP:</span> 
                     <span class="event-value">${row.TIP}</span>
