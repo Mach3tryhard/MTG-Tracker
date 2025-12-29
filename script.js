@@ -155,7 +155,7 @@ function renderCardGallery(data) {
         data.forEach((row, index) => {
 
             html += `
-            <div class="gallery-item-set" onclick="selectSetGallery(this, ${index})">
+            <div class="gallery-item-set" onclick="selectCardGallery(this, ${index})">
                 <img src="${row.URL_IMAGINE_SET}" class="gallery-set-icon" onerror="this.style.display='none'">
                 
                 <div>
@@ -214,7 +214,7 @@ function renderCardGallery(data) {
             let imgSrc = 'assets/avatar.jpg';
 
             html += `
-                <div class="player-card" onclick="selectSetGallery(this, ${index})">
+                <div class="player-card" onclick="selectCardGallery(this, ${index})">
                     
                     <div class="player-avatar-container">
                         <img src="${imgSrc}" class="player-avatar" alt="User Avatar">
@@ -341,10 +341,18 @@ function renderCardGallery(data) {
 }
 
 function selectCardGallery(el, index) {
-    document.querySelectorAll('.mtg-card.selected').forEach(d => d.classList.remove('selected'));
+    const previouslySelected = document.querySelectorAll('.selected');
+    
+    previouslySelected.forEach(item => {
+        item.classList.remove('selected');
+    });
+
     el.classList.add('selected');
-    selectedRow = currentData[index];
-    updateButtons();
+
+    if (currentData && currentData[index]) {
+        selectedRow = currentData[index];
+        updateButtons();
+    }
 }
 
 function selectSetGallery(el, index) {
