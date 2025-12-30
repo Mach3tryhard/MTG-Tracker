@@ -25,7 +25,7 @@ body {
 }
 .nav-logo {
     font-family: 'Cinzel', serif; font-size: 20px; color: var(--mtg-gold);
-    margin-right: 30px; padding-left: 10px; text-shadow: 0 0 5px rgba(198, 166, 104, 0.5);
+    margin-right: 30px; padding-left: 10px; text-shadow: 0 0 5px rgba(198, 166, 104, 0.5);padding-right: 10px;
 }
 .nav-btn {
     background: none; border: none; padding: 0 20px; height: 100%;

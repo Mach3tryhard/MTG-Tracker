@@ -58,10 +58,24 @@ app.put('/api/update/generic', async (req, res) => {
 
         Object.keys(data).forEach(key => {
             if (key !== pkCol) {
-                setClauses.push(`${key} = :${key}`);
-                bindParams[key] = data[key];
+                let isDateColumn = (key.toUpperCase().includes('DATA') || key.toUpperCase().includes('LANSARE'));
+                
+                let isDateString = (typeof data[key] === 'string' && /^\d{4}-\d{2}-\d{2}/.test(data[key]));
+
+                if (isDateColumn && isDateString) {
+                    setClauses.push(`${key} = TO_DATE(:${key}, 'YYYY-MM-DD')`);
+                    
+                    bindParams[key] = data[key].substring(0, 10);
+                } else {
+                    setClauses.push(`${key} = :${key}`);
+                    bindParams[key] = data[key];
+                }
             }
         });
+        // -------------------------------------
+
+        // Adăugăm valoarea pentru WHERE (pk_val_bind)
+        bindParams['pk_val_bind'] = pkVal;
 
         // Adăugăm valoarea pentru WHERE
         bindParams['pk_val_bind'] = pkVal;
@@ -152,19 +166,20 @@ app.get('/api/reports/winrate', async (req, res) => {
         
         const sql = `
             SELECT 
-            p.NUME_PACHET,
-            p.FORMAT_JOC,
-            COUNT(m.ID_MECI) as MECIURI_JUCATE,
-            SUM(CASE WHEN m.JOCURI_CASTIGATE > m.JOCURI_PIERDUTE THEN 1 ELSE 0 END) as VICTORII,
-            SUM(CASE WHEN m.JOCURI_PIERDUTE > m.JOCURI_CASTIGATE THEN 1 ELSE 0 END) as INFRANGERI,
-            SUM(CASE WHEN m.JOCURI_PIERDUTE = m.JOCURI_CASTIGATE THEN 1 ELSE 0 END) as EGALITATI,
-            ROUND((SUM(CASE WHEN m.JOCURI_CASTIGATE > m.JOCURI_PIERDUTE THEN 1.0 ELSE 0.0 END) / COUNT(m.ID_MECI)) * 100, 1) || '%' as PROCENT_VICTORII
-        FROM PACHETE p
-        JOIN PACHETE_MECIURI pm ON p.ID_PACHET = pm.ID_PACHET
-        JOIN MECIURI m ON pm.ID_MECI = m.ID_MECI
-        WHERE p.FORMAT_JOC = 'sealed'
-        GROUP BY p.NUME_PACHET, p.FORMAT_JOC
-        ORDER BY VICTORII DESC
+                p.NUME_PACHET,
+                p.FORMAT_JOC,
+                COUNT(m.ID_MECI) as MECIURI_COMPETITIVE,
+                ROUND((SUM(CASE WHEN m.JOCURI_CASTIGATE > m.JOCURI_PIERDUTE THEN 1.0 ELSE 0.0 END) / COUNT(m.ID_MECI)) * 100, 1) || '%' as PROCENT_VICTORII,
+                SUM(CASE WHEN m.JOCURI_CASTIGATE > m.JOCURI_PIERDUTE THEN 1 ELSE 0 END) || '-' || 
+                SUM(CASE WHEN m.JOCURI_PIERDUTE > m.JOCURI_CASTIGATE THEN 1 ELSE 0 END) as SCOR_GENERAL
+            FROM PACHETE p
+            JOIN PACHETE_MECIURI pm ON p.ID_PACHET = pm.ID_PACHET
+            JOIN MECIURI m ON pm.ID_MECI = m.ID_MECI
+            JOIN EVENIMENTE e ON m.ID_EVENIMENT = e.ID_EVENIMENT
+            WHERE e.TIP != 'casual'
+            GROUP BY p.NUME_PACHET, p.FORMAT_JOC
+            HAVING COUNT(m.ID_MECI) >= 1
+            ORDER BY PROCENT_VICTORII DESC
         `;
 
         const result = await connection.execute(sql, [], { outFormat: oracledb.OUT_FORMAT_OBJECT });

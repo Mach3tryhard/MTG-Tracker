@@ -483,16 +483,7 @@ function renderAnalysisTable(data) {
             if (col === 'MEDIA_MANA_COST') {
                 const num = parseFloat(val);
                 let color = '#ccc';
-                if(num < 2.5) color = '#27ae60'; 
-                else if(num < 3.5) color = '#e67e22'; 
-                else color = '#d3202a'; 
                 val = `<span style="font-weight:bold; color:${color}">${val}</span>`;
-            }
-
-            if (col === 'TOTAL_CARTI') {
-                if(row['FORMAT_JOC'] === 'sealed' && val < 40) {
-                    val = `<span style="color:red; font-weight:bold" title="Illegal Deck!">${val} ⚠️</span>`;
-                }
             }
 
             html += `<td>${val}</td>`;
