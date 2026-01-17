@@ -57,14 +57,12 @@ app.put('/api/update/generic', async (req, res) => {
         let bindParams = {};
 
         Object.keys(data).forEach(key => {
-            if (key !== pkCol) {
+            if (data[key] !== undefined) {
                 let isDateColumn = (key.toUpperCase().includes('DATA') || key.toUpperCase().includes('LANSARE'));
-                
                 let isDateString = (typeof data[key] === 'string' && /^\d{4}-\d{2}-\d{2}/.test(data[key]));
 
                 if (isDateColumn && isDateString) {
                     setClauses.push(`${key} = TO_DATE(:${key}, 'YYYY-MM-DD')`);
-                    
                     bindParams[key] = data[key].substring(0, 10);
                 } else {
                     setClauses.push(`${key} = :${key}`);
@@ -72,19 +70,19 @@ app.put('/api/update/generic', async (req, res) => {
                 }
             }
         });
-        // -------------------------------------
 
-        // Adăugăm valoarea pentru WHERE (pk_val_bind)
-        bindParams['pk_val_bind'] = pkVal;
-
-        // Adăugăm valoarea pentru WHERE
         bindParams['pk_val_bind'] = pkVal;
 
         const sql = `UPDATE ${tableName} SET ${setClauses.join(', ')} WHERE ${pkCol} = :pk_val_bind`;
 
         console.log("Execut SQL:", sql);
         
-        await connection.execute(sql, bindParams);
+        const result = await connection.execute(sql, bindParams);
+
+        if (result.rowsAffected === 0) {
+            return res.status(404).json({ success: false, error: "Nu am găsit înregistrarea!" });
+        }
+
         res.json({ success: true });
 
     } catch (err) {

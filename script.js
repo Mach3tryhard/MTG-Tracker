@@ -634,7 +634,7 @@ function openModal(mode) {
     keys.forEach(key => {
         let val = '';
         if (mode === 'edit') val = selectedRow[key] !== null ? selectedRow[key] : '';
-        const isReadOnly = (mode === 'edit' && key === pkKey);
+        const isReadOnly = /*(mode === 'edit' && key === pkKey)*/null;
 
         const div = document.createElement('div');
         div.className = 'form-group';
@@ -654,27 +654,44 @@ function closeModal() {
 async function saveData() {
     const keys = Object.keys(currentData[0]);
     const newData = {};
+    
     keys.forEach(key => {
         newData[key] = document.getElementById(`input_${key}`).value;
     });
+
     if (currentMode === 'edit') {
-        await updateData(newData, keys[0]);
+        const pkCol = keys[0];
+        const oldPkVal = selectedRow[pkCol];
+        await updateData(newData, pkCol, oldPkVal);
     } else {
         await insertData(newData);
     }
 }
 
-async function updateData(data, pkCol) {
+async function updateData(data, pkCol, oldPkVal) {
     try {
         const res = await fetch(`http://localhost:3000/api/update/generic`, {
             method: 'PUT',
             headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ tableName: currentTable, pkCol: pkCol, pkVal: data[pkCol], data: data })
+            body: JSON.stringify({ 
+                tableName: currentTable, 
+                pkCol: pkCol, 
+                pkVal: oldPkVal,
+                data: data
+            })
         });
         const json = await res.json();
-        if(json.success) { closeModal(); loadTable(currentTable, document.querySelector('.nav-btn.active')); }
-        else alert("EROARE: " + json.error);
-    } catch(e) { alert(e); }
+        
+        if(json.success) { 
+            closeModal(); 
+            loadTable(currentTable, document.querySelector('.nav-btn.active')); 
+        }
+        else {
+            alert("NU SE POATE MODIFICA:\n" + json.error);
+        }
+    } catch(e) { 
+        alert("Eroare de rețea: " + e); 
+    }
 }
 
 async function insertData(data) {
