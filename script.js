@@ -410,9 +410,9 @@ function selectCardGallery(el, index) {
     }
 }
 
-async function loadPortfolioView(btnElement) {
+async function loadEditieView(btnElement) {
     document.querySelector('.btn-add').disabled = false; 
-    currentTable = 'V_PORTOFOLIU_RARE';
+    currentTable = 'V_CARTI_SI_EDITII';
     selectedRow = null;
     updateButtons();
     
@@ -421,11 +421,11 @@ async function loadPortfolioView(btnElement) {
     document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
     if(btnElement) btnElement.classList.add('active');
 
-    document.getElementById('tableTitle').innerText = "PORTOFOLIU CARTI VALOROASE";
+    document.getElementById('tableTitle').innerText = "EDITII CARTI";
     document.getElementById('tableWrapper').innerHTML = '<div style="padding:20px; color:#aaa;">Filtering high-value assets...</div>';
 
     try {
-        const res = await fetch(`http://localhost:3000/api/table/V_PORTOFOLIU_RARE`);
+        const res = await fetch(`http://localhost:3000/api/table/V_CARTI_SI_EDITII`);
         if (!res.ok) throw new Error(await res.text());
         const data = await res.json();
         currentData = data;
@@ -677,7 +677,8 @@ async function updateData(data, pkCol, oldPkVal) {
                 tableName: currentTable, 
                 pkCol: pkCol, 
                 pkVal: oldPkVal,
-                data: data
+                data: data,
+                originalData: selectedRow
             })
         });
         const json = await res.json();

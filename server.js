@@ -47,40 +47,55 @@ app.put('/api/update/generic', async (req, res) => {
     try {
         connection = await oracledb.getConnection(dbConfig);
         
-        const { tableName, pkCol, pkVal, data } = req.body;
+        // ACCEPT 'originalData' in the body
+        const { tableName, pkCol, pkVal, data, originalData } = req.body;
 
         if (!/^[A-Z0-9_]+$/.test(tableName) || !/^[A-Z0-9_]+$/.test(pkCol)) {
-            return res.status(400).json({ error: "Nume tabel/coloană invalide" });
+            return res.status(400).json({ error: "Invalid table/column name" });
         }
 
         let setClauses = [];
         let bindParams = {};
 
         Object.keys(data).forEach(key => {
-            if (data[key] !== undefined) {
+            let newVal = data[key];
+            let oldVal = originalData ? originalData[key] : undefined;
+
+            let cleanNew = newVal; 
+            let cleanOld = oldVal;
+
+            if (typeof cleanNew === 'string' && cleanNew.includes('T')) cleanNew = cleanNew.split('T')[0];
+            if (typeof cleanOld === 'string' && cleanOld.includes('T')) cleanOld = cleanOld.split('T')[0];
+
+            if (cleanNew != cleanOld) {
+                
                 let isDateColumn = (key.toUpperCase().includes('DATA') || key.toUpperCase().includes('LANSARE'));
-                let isDateString = (typeof data[key] === 'string' && /^\d{4}-\d{2}-\d{2}/.test(data[key]));
+                let isDateString = (typeof newVal === 'string' && /^\d{4}-\d{2}-\d{2}/.test(newVal));
 
                 if (isDateColumn && isDateString) {
                     setClauses.push(`${key} = TO_DATE(:${key}, 'YYYY-MM-DD')`);
-                    bindParams[key] = data[key].substring(0, 10);
+                    bindParams[key] = newVal.substring(0, 10);
                 } else {
                     setClauses.push(`${key} = :${key}`);
-                    bindParams[key] = data[key];
+                    bindParams[key] = newVal;
                 }
             }
         });
+
+        if (setClauses.length === 0) {
+            return res.json({ success: true, message: "No changes detected." });
+        }
 
         bindParams['pk_val_bind'] = pkVal;
 
         const sql = `UPDATE ${tableName} SET ${setClauses.join(', ')} WHERE ${pkCol} = :pk_val_bind`;
 
-        console.log("Execut SQL:", sql);
+        console.log("Execut Partial SQL:", sql);
         
         const result = await connection.execute(sql, bindParams);
 
         if (result.rowsAffected === 0) {
-            return res.status(404).json({ success: false, error: "Nu am găsit înregistrarea!" });
+            return res.status(404).json({ success: false, error: "Record not found!" });
         }
 
         res.json({ success: true });
