@@ -502,6 +502,10 @@ async function loadWinrateReport(btnElement) {
     updateButtons(); 
     
     document.getElementById('viewModeActions').style.display = 'none';
+    const btnScryfallCard = document.getElementById('btnScryfall');
+    const btnScryfallSet = document.getElementById('btnScryfallSet');
+    btnScryfallCard.style.display = 'none';
+    btnScryfallSet.style.display = 'none';
 
     document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
     if(btnElement) btnElement.classList.add('active');
