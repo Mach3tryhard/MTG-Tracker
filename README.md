@@ -30,6 +30,8 @@ Proiectul este construit pe o schemă relațională robustă, incluzând tabele 
     * Statistici privind distribuția culorilor în pachete.
 * **Integritate**: Constrângeri (PK, FK, CHECK) pentru validarea datelor introduse.
 
+<img width="1381" height="767" alt="Screenshot 2025-12-17 020420" src="https://github.com/user-attachments/assets/b6471721-67cb-4737-8cff-f1a1f6cffd52" />
+
 ## Tehnologii Folosite
 
 * **SGBD**: Oracle Database (11g/12c/19c sau XE).
